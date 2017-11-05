@@ -2,7 +2,7 @@
 <html>
 
 <head>
-	<title>Facebook Login JavaScript Example</title>
+	<title>Facebook Login</title>
 	<meta charset="UTF-8">
 </head>
 
@@ -16,7 +16,6 @@
 		var search = null, token = null;
 		//search = "https://graph.facebook.com/search?q=*&type=event&debug=all&limit=500";
 
-		// This is called with the results from from FB.getLoginStatus().
 		function statusChangeCallback(response) {
 			console.log('statusChangeCallback');
 			console.log(response);
@@ -27,32 +26,19 @@
 			if (response.status === 'connected') {
 				console.log('¡Bienvenido! Obteniendo tu información ...');
 
-				//Token para los formularios, para evitar ataques del tipo CSRF
 				token = response.authResponse.accessToken;
 				//token = "400698847015397|9Lhnyi1QmtsNv5XItH1uQhbav5c";
 
 				console.log("Token: ["+token+"]")
 				//var accessToken = response.authResponse.accessToken;
 
-				/*
-				De esta forma podemos acceder a la información del usuario
-				Más información en: 
-				https://developers.facebook.com/docs/facebook-login/permissions/v2.10?locale=es_LA
-				*/
 				FB.api('/me', function(response) {
-
 					console.log('Inicio de sesión exitoso para: ' + response.name);
-
-					// nombre del usuario
 					name = response.name;
-					// email del usuario
 					email = response.email;
-					// id del usuario
 					id = response.id;
-
 					// Incluimos un mensaje y la imagen del usuario
-					//status.innerHTML = name + " has iniciado sesión correctamente <img src='//graph.facebook.com/" + id + "/picture'>";
-					status.innerHTML = name + " has iniciado sesión correctamente <br/> <img src='//graph.facebook.com/" + id + "/picture?width=800&height=800'>";
+					//status.innerHTML = name + " has iniciado sesión correctamente <br/> <img src='//graph.facebook.com/" + id + "/picture?width=800&height=800'>";
 					status.innerHTML = name + " has iniciado sesión correctamente <br/> <img src='//graph.facebook.com/" + id + "/picture?type=large'>";
 				});
 
@@ -62,7 +48,6 @@
 			//No autorizado para acceder a la aplicación
 			else if (response.status === 'not_authorized') {
 				status.innerHTML = "Por favor, tienes que autenticarte con Facebook";
-				//document.getElementById('status').innerHTML = 'Por favor inicia sesión ' + 'en esta aplicación.';
 			}
 			//No tiene sesión abierta en Facebook
 			else {
@@ -86,20 +71,12 @@
 		    xhr.send();
 		 
 		    xhr.onreadystatechange = function(){
-		    	console.log("A");
 		    	console.log(xhr);
 
 		        if(xhr.readyState == 4 && xhr.status == 200){
-		        	console.log("B");
-		        	console.log(xhr.responseText);
-
 					var jsonResponse = JSON.parse(xhr.responseText);
-					
-					console.log("C");
-					console.log(jsonResponse);
 
 					for (i = 0; i < jsonResponse.data.length; i++) {
-						console.log("D"+i);
 						var rNameEvent, rDescription,rCountry, rCity, rLatitude, rLongitude, rNamePlace, rStreet;
 						try {
 							rNameEvent = jsonResponse.data[i].name;
@@ -122,16 +99,9 @@
 
     						country = (rCountry === "Guatemala");
     						city = (rCity === "Guatemala City");
-
-    						//name = (rNamePlace == "Guatemala");
     						name = rNamePlace.includes("Guatemala");
-
     						nameEvent = rNameEvent.includes("Guatemala");
-
-    						//street = (rStreet == "Guatemala");
     						street = rStreet.includes("Guatemala");
-    						
-    						//description = (rDescription == "Guatemala");
     						description = rDescription.includes("Guatemala");
 
     						lat = ((rLatitude >= 13) && (rLatitude <= 18));
