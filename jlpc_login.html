@@ -60,7 +60,7 @@
 		    var xhr = new XMLHttpRequest();
 
 		    if (search == null || search == "" || search == undefined) {
-		    	search = "https://graph.facebook.com/search?q=*&type=event&debug=all&limit=500" + "&access_token="+token
+		    	search = "https://graph.facebook.com/search?q=*&type=event&debug=all" + "&access_token="+token
 		    } else {
 		    	console.log("-------------------------------------------------------------------------");
 		    }
@@ -144,16 +144,6 @@
 						}
 						catch(err) {
 						}
-					}
-					
-					if (!(jsonResponse.paging == undefined)) {
-						
-						search = jsonResponse.paging.next;
-						console.log("PAGING: "+search);
-						console.log("Next...");
-						Eventos();
-					} else {
-						console.log("Ya no hay más datos.");
 					}
 		        }
 		    }
