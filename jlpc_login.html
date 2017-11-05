@@ -1,225 +1,219 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-	<title>Facebook Login</title>
-	<meta charset="UTF-8">
-</head>
-
-<body>
-	<div id="fb-root"></div>
-	<script>
-
-		//Autor: Jorge Luis Pérez Canto.
-		//Fecha: 01/02/2017
-		
-		var search = null, token = null;
-		//search = "https://graph.facebook.com/search?q=*&type=event&debug=all&limit=500";
-
-		function statusChangeCallback(response) {
-			console.log('statusChangeCallback');
-			console.log(response);
-
-			var status = document.getElementById("status");
-
-			//Si el usuario está conectado correctamente a nuestra aplicación
-			if (response.status === 'connected') {
-				console.log('¡Bienvenido! Obteniendo tu información ...');
-
-				token = response.authResponse.accessToken;
-				//token = "400698847015397|9Lhnyi1QmtsNv5XItH1uQhbav5c";
-
-				console.log("Token: ["+token+"]")
-				//var accessToken = response.authResponse.accessToken;
-
-				FB.api('/me', function(response) {
-					console.log('Inicio de sesión exitoso para: ' + response.name);
-					name = response.name;
-					email = response.email;
-					id = response.id;
-					// Incluimos un mensaje y la imagen del usuario
-					//status.innerHTML = name + " has iniciado sesión correctamente <br/> <img src='//graph.facebook.com/" + id + "/picture?width=800&height=800'>";
-					status.innerHTML = name + " has iniciado sesión correctamente <br/> <img src='//graph.facebook.com/" + id + "/picture?type=large'>";
-				});
-
-				//sfdsafdasdasdas
-
-			}
-			//No autorizado para acceder a la aplicación
-			else if (response.status === 'not_authorized') {
-				status.innerHTML = "Por favor, tienes que autenticarte con Facebook";
-			}
-			//No tiene sesión abierta en Facebook
-			else {
-				status.innerHTML = "No has iniciado sesión en Facebook";
-			}
-		}
-
-		function Eventos() {
-
-		    var xhr = new XMLHttpRequest();
-
-		    if (search == null || search == "" || search == undefined) {
-		    	search = "https://graph.facebook.com/search?q=*&type=event&debug=all" + "&access_token="+token
-		    } else {
-		    	console.log("-------------------------------------------------------------------------");
-		    }
-
-		    console.log("GET "+search);
-		    
-		    xhr.open("GET",search,true);
-		    xhr.send();
-		 
-		    xhr.onreadystatechange = function(){
-		    	console.log(xhr);
-
-		        if(xhr.readyState == 4 && xhr.status == 200){
-					var jsonResponse = JSON.parse(xhr.responseText);
-
-					for (i = 0; i < jsonResponse.data.length; i++) {
-						var rNameEvent, rDescription,rCountry, rCity, rLatitude, rLongitude, rNamePlace, rStreet;
-						try {
-							rNameEvent = jsonResponse.data[i].name;
-							rDescription = jsonResponse.data[i].description;
-    						rCountry = jsonResponse.data[i].place.location.country;
-    						rCity = jsonResponse.data[i].place.location.city;
-    						rLatitude = jsonResponse.data[i].place.location.latitude;
-    						rLongitude = jsonResponse.data[i].place.location.longitude; 
-    						rNamePlace = jsonResponse.data[i].place.name;
-    						rStreet = jsonResponse.data[i].place.location.street;
-
-    						var nameEvent = false;
-    						var country = false;
-    						var city = false;
-    						var name = false;
-    						var street = false;
-    						var lat = false;
-    						var long = false;
-    						var description = false;
-
-    						country = (rCountry === "Guatemala");
-    						city = (rCity === "Guatemala City");
-    						name = rNamePlace.includes("Guatemala");
-    						nameEvent = rNameEvent.includes("Guatemala");
-    						street = rStreet.includes("Guatemala");
-    						description = rDescription.includes("Guatemala");
-
-    						lat = ((rLatitude >= 13) && (rLatitude <= 18));
-    						long =  ((rLongitude >= -92) && (rLongitude <= -88));
-
-    						console.log(jsonResponse.data[i]);
-    						console.log("R"+i+":"+jsonResponse.data[i]);
-
-    						if ( (country || city || name || nameEvent || street || description) || ((lat) && (long)) ) {
-    							console.log(jsonResponse.data[i].name);
-    							
-    							document.getElementById("parrafo").innerHTML += "<br>" + jsonResponse.data[i].name;
-
-								if (country) {
-	    							console.log(rNameEvent + " Coincide country: "+country);
-	    						}
-	    						if (city) {
-	    							console.log(rNameEvent + " Coincide city: "+city);
-	    						}
-	    						if (name) {
-	    							console.log(rNameEvent + " Coincide namePlace: "+name);
-	    						}
-	    						if (street) {
-	    							console.log(rNameEvent + " Coincide street: "+street);
-	    						}
-	    						if (lat) {
-	    							console.log(rNameEvent + " Coincide lat: "+lat);
-	    						}
-	    						if (long) {
-	    							console.log(rNameEvent + " Coincide long: "+long);
-	    						}
-
-	    						if (nameEvent) {
-	    							console.log(rNameEvent + " Coincide nameEvent: "+nameEvent);
-	    						}
-	    						if (description) {
-	    							console.log(rNameEvent + " Coincide description: "+description);
-	    						}
-    						}
-						}
-						catch(err) {
-						}
-					}
-		        }
-		    }
-		}
-
-		function checkLoginState() {
-			FB.getLoginStatus(function(response) {
-				statusChangeCallback(response);
-			});
-		}
-
-		// Configuramos la API
-		window.fbAsyncInit = function() {
-			FB.init({
-				appId: '400698847015397', //Incluye aquí tu clave pública
-				cookie: true, // enable cookies to allow the server to access 
-				// the session
-				xfbml: true, // parse social plugins on this page
-				status: true, //Extra
-				version: 'v2.10' // use graph api version 2.8
-
-			});
-
-			FB.getLoginStatus(function(response) {
-				statusChangeCallback(response);
-			});
-
-		};
-
-		// Cargamos la API
-		// Load the SDK asynchronously
-		(function(d, s, id) {
-			var js, fjs = d.getElementsByTagName(s)[0];
-			if (d.getElementById(id)) return;
-			js = d.createElement(s);
-			js.id = id;
-			//js.src = "//connect.facebook.net/es_LA/sdk.js";
-			js.src = "//connect.facebook.net/es_LA/sdk/debug.js";
-			fjs.parentNode.insertBefore(js, fjs);
-		}(document, 'script', 'facebook-jssdk'));
-
-		//Extras:
-		/* Función para el botón de iniciar sesión con Facebook */
-		function FBBtnLogin() {
-			FB.login(function(response) {
-				if (response.authResponse) {
-					window.location.reload();
+	<head>
+		<title>Facebook</title>
+		<meta charset="UTF-8">
+	</head>
+	<body>
+		<div id="fb-root"></div>
+		<script>
+			//Autor: Jorge Luis Pérez Canto.
+			//Fecha: 04/11/2017
+			
+			var search = null, token = null;
+			
+			function statusChangeCallback(response) {
+				console.log('statusChangeCallback');
+				console.log(response);
+			
+				var status = document.getElementById("status");
+			
+				//Si el usuario está conectado correctamente a nuestra aplicación
+				if (response.status === 'connected') {
+					console.log('¡Bienvenido! Obteniendo tu información ...');
+			
+					token = response.authResponse.accessToken;
+			
+					console.log("Token: ["+token+"]")
+					//var accessToken = response.authResponse.accessToken;
+			
+					FB.api('/me', function(response) {
+						console.log('Inicio de sesión exitoso para: ' + response.name);
+						name = response.name;
+						email = response.email;
+						id = response.id;
+						// Incluimos un mensaje y la imagen del usuario
+						//status.innerHTML = name + " has iniciado sesión correctamente <br/> <img src='//graph.facebook.com/" + id + "/picture?width=800&height=800'>";
+						status.innerHTML = name + " has iniciado sesión correctamente <br/> <img src='//graph.facebook.com/" + id + "/picture?type=large'>";
+					});
+			
+					//sfdsafdasdasdas
+			
 				}
-			}, {
-				/* Solicitamos poder acceder a estos permisos del perfil del usuario */
-				scope: 'public_profile,email'
-			});
-		}
+				//No autorizado para acceder a la aplicación
+				else if (response.status === 'not_authorized') {
+					status.innerHTML = "Por favor, tienes que autenticarte con Facebook";
+				}
+				//No tiene sesión abierta en Facebook
+				else {
+					status.innerHTML = "No has iniciado sesión en Facebook";
+				}
+			}
+			
+			function Eventos() {
+			
+			    var xhr = new XMLHttpRequest();
+			
+			    if (search == null || search == "" || search == undefined) {
+			    	search = "https://graph.facebook.com/search?q=*&type=event&debug=all" + "&access_token="+token
+			    } else {
+			    	console.log("-------------------------------------------------------------------------");
+			    }
+			
+			    console.log("GET "+search);
+			    
+			    xhr.open("GET",search,true);
+			    xhr.send();
+			 
+			    xhr.onreadystatechange = function(){
+			    	console.log(xhr);
+			
+			        if(xhr.readyState == 4 && xhr.status == 200){
+						var jsonResponse = JSON.parse(xhr.responseText);
+			
+						for (i = 0; i < jsonResponse.data.length; i++) {
+							var rNameEvent, rDescription,rCountry, rCity, rLatitude, rLongitude, rNamePlace, rStreet;
+							try {
+								rNameEvent = jsonResponse.data[i].name;
+								rDescription = jsonResponse.data[i].description;
+			  						rCountry = jsonResponse.data[i].place.location.country;
+			  						rCity = jsonResponse.data[i].place.location.city;
+			  						rLatitude = jsonResponse.data[i].place.location.latitude;
+			  						rLongitude = jsonResponse.data[i].place.location.longitude; 
+			  						rNamePlace = jsonResponse.data[i].place.name;
+			  						rStreet = jsonResponse.data[i].place.location.street;
+			
+			  						var nameEvent = false;
+			  						var country = false;
+			  						var city = false;
+			  						var name = false;
+			  						var street = false;
+			  						var lat = false;
+			  						var long = false;
+			  						var description = false;
+			
+			  						country = (rCountry === "Guatemala");
+			  						city = (rCity === "Guatemala City");
+			  						name = rNamePlace.includes("Guatemala");
+			  						nameEvent = rNameEvent.includes("Guatemala");
+			  						street = rStreet.includes("Guatemala");
+			  						description = rDescription.includes("Guatemala");
+			
+			  						lat = ((rLatitude >= 13) && (rLatitude <= 18));
+			  						long =  ((rLongitude >= -92) && (rLongitude <= -88));
+			
+			  						console.log(jsonResponse.data[i]);
+			  						console.log("R"+i+":"+jsonResponse.data[i]);
+			
+			  						if ( (country || city || name || nameEvent || street || description) || ((lat) && (long)) ) {
+			  							console.log(jsonResponse.data[i].name);
+			  							
+			  							document.getElementById("parrafo").innerHTML += "<br>" + jsonResponse.data[i].name;
 
-		/* Función para el botón de cierre de sesión en facebook, 
-           lógicamente el usuario sale de nuestra aplicación */
-		function FBBtnLogout() {
-			console.log("logout");
-			FB.logout(function(response) {
-				window.location.reload();
-			});
-		}
-
-	</script>
-	<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
-	</fb:login-button>
-	<div id="status">
-	</div>
-	<button type="button" onclick="FBBtnLogin()">Iniciar sesión</button>
-	<button type="button" onclick="FBBtnLogout()">Cerrar sesión</button>
-
-	<button type="button" onclick="Eventos()">Buscar Eventos</button>
-
-	<div id="parrafo">
-	</div>
-
-</body>
-
+			  							// Log
+			  							/*
+										if (country) {
+				   							console.log(rNameEvent + " Coincide country: "+country);
+				   						}
+				   						if (city) {
+				   							console.log(rNameEvent + " Coincide city: "+city);
+				   						}
+				   						if (name) {
+				   							console.log(rNameEvent + " Coincide namePlace: "+name);
+				   						}
+				   						if (street) {
+				   							console.log(rNameEvent + " Coincide street: "+street);
+				   						}
+				   						if (lat) {
+				   							console.log(rNameEvent + " Coincide lat: "+lat);
+				   						}
+				   						if (long) {
+				   							console.log(rNameEvent + " Coincide long: "+long);
+				   						}
+				
+				   						if (nameEvent) {
+				   							console.log(rNameEvent + " Coincide nameEvent: "+nameEvent);
+				   						}
+				   						if (description) {
+				   							console.log(rNameEvent + " Coincide description: "+description);
+				   						}
+				   						*/
+			  						}
+							}
+							catch(err) {
+							}
+						}
+			        }
+			    }
+			}
+			
+			function checkLoginState() {
+				FB.getLoginStatus(function(response) {
+					statusChangeCallback(response);
+				});
+			}
+			
+			// Configuramos la API
+			window.fbAsyncInit = function() {
+				FB.init({
+					appId: '400698847015397', //Incluye aquí tu clave pública
+					cookie: true, // enable cookies to allow the server to access 
+					// the session
+					xfbml: true, // parse social plugins on this page
+					status: true, //Extra
+					version: 'v2.10' // use graph api version 2.8
+			
+				});
+			
+				FB.getLoginStatus(function(response) {
+					statusChangeCallback(response);
+				});
+			
+			};
+			
+			// Cargamos la API
+			// Load the SDK asynchronously
+			(function(d, s, id) {
+				var js, fjs = d.getElementsByTagName(s)[0];
+				if (d.getElementById(id)) return;
+				js = d.createElement(s);
+				js.id = id;
+				//js.src = "//connect.facebook.net/es_LA/sdk.js";
+				js.src = "//connect.facebook.net/es_LA/sdk/debug.js";
+				fjs.parentNode.insertBefore(js, fjs);
+			}(document, 'script', 'facebook-jssdk'));
+			
+			//Extras:
+			/* Función para el botón de iniciar sesión con Facebook */
+			function FBBtnLogin() {
+				FB.login(function(response) {
+					if (response.authResponse) {
+						window.location.reload();
+					}
+				}, {
+					/* Solicitamos poder acceder a estos permisos del perfil del usuario */
+					scope: 'public_profile,email'
+				});
+			}
+			
+			/* Función para el botón de cierre de sesión en facebook, 
+			         lógicamente el usuario sale de nuestra aplicación */
+			function FBBtnLogout() {
+				console.log("logout");
+				FB.logout(function(response) {
+					window.location.reload();
+				});
+			}
+			
+		</script>
+		<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+		</fb:login-button>
+		<div id="status">
+		</div>
+		<button type="button" onclick="FBBtnLogin()">Iniciar sesión</button>
+		<button type="button" onclick="FBBtnLogout()">Cerrar sesión</button>
+		<button type="button" onclick="Eventos()">Buscar Eventos</button>
+		<div id="parrafo">
+		</div>
+	</body>
 </html>
